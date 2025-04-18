@@ -6,12 +6,12 @@ public class SecondHealthBarController : MonoBehaviour
 {
     public Image healthBarFill;
 
-    private float maxHealth = 100f;
-    private float currentHealth;
+    public float maxHealth = 100f;
+    public float currentHealth;
 
-    private bool defenseEnabled = true;
-    private bool isLeftDefending = false;
-    private bool isRightDefending = false;
+    public bool defenseEnabled = true;
+    public bool isLeftDefending = false;
+    public bool isRightDefending = false;
 
     void Start()
     {
@@ -23,10 +23,19 @@ public class SecondHealthBarController : MonoBehaviour
     {
         // Trigger defense on key press
         if (Input.GetKeyDown(KeyCode.A))
+        {
+            WorldSFXManager.instance.PlayBlockSound();
+
             StartCoroutine(TemporaryLeftDefense());
+        }
+
 
         if (Input.GetKeyDown(KeyCode.D))
+        {
+            WorldSFXManager.instance.PlayBlockSound();
             StartCoroutine(TemporaryRightDefense());
+        }
+
 
         // Punish if both defense keys are pressed in the same frame
         if (Input.GetKeyDown(KeyCode.A) && Input.GetKeyDown(KeyCode.D) && defenseEnabled)
@@ -37,15 +46,22 @@ public class SecondHealthBarController : MonoBehaviour
         // Damage by W unless defended
         if (Input.GetKeyDown(KeyCode.W))
         {
-            if (!isLeftDefending || !defenseEnabled)
+            Debug.Log("damage hello?");
+            if (!isLeftDefending )//|| !defenseEnabled)
+            {
+                
                 TakeDamage(10f);
+            }
         }
 
         // Damage by S unless defended
         if (Input.GetKeyDown(KeyCode.S))
         {
             if (!isRightDefending || !defenseEnabled)
+            {
+                Debug.Log("damage hello?");
                 TakeDamage(10f);
+            }
         }
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -93,6 +109,7 @@ public class SecondHealthBarController : MonoBehaviour
 
     void TakeDamage(float amount)
     {
+        WorldSFXManager.instance.PlayHitSound();
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();

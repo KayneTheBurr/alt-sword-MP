@@ -6,14 +6,14 @@ public class HealthBarController : MonoBehaviour
 {
     public Image healthBarFill;
 
-    private float maxHealth = 100f;
-    private float currentHealth;
+    public float maxHealth = 100f;
+    public float currentHealth;
 
-    private bool defenseEnabled = true;
-    private bool isLeftDefending = false;
-    private bool isRightDefending = false;
-    private float leftDefenseTime = -10f;
-    private float rightDefenseTime = -10f;
+    public bool defenseEnabled = true;
+    public bool isLeftDefending = false;
+    public bool isRightDefending = false;
+    //public float leftDefenseTime = -10f;
+    //public float rightDefenseTime = -10f;
 
 
     void Start()
@@ -26,10 +26,18 @@ public class HealthBarController : MonoBehaviour
     {
         // Trigger defense on key press
         if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            WorldSFXManager.instance.PlayBlockSound();
             StartCoroutine(TemporaryLeftDefense());
+        }
+
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            WorldSFXManager.instance.PlayBlockSound();
             StartCoroutine(TemporaryRightDefense());
+        }
+
 
         // Punish if both defense keys are pressed in the same frame
         if (Input.GetKeyDown(KeyCode.LeftArrow) && Input.GetKeyDown(KeyCode.RightArrow) && defenseEnabled)
@@ -42,6 +50,7 @@ public class HealthBarController : MonoBehaviour
         {
             if (!isLeftDefending || !defenseEnabled)
                 TakeDamage(10f);
+            
         }
 
         // Damage by DownArrow unless defended
@@ -49,6 +58,7 @@ public class HealthBarController : MonoBehaviour
         {
             if (!isRightDefending || !defenseEnabled)
                 TakeDamage(10f);
+            
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
@@ -96,6 +106,7 @@ public class HealthBarController : MonoBehaviour
 
     void TakeDamage(float amount)
     {
+        WorldSFXManager.instance.PlayHitSound();
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();
