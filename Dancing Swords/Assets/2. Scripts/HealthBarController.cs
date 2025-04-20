@@ -5,103 +5,78 @@ using System.Collections;
 public class HealthBarController : MonoBehaviour
 {
     public Image healthBarFill;
+    public GameObject attackFeedbackImage; // assign via Inspector
 
     public float maxHealth = 100f;
     public float currentHealth;
 
-    public bool defenseEnabled = true;
-    public bool isLeftDefending = false;
-    public bool isRightDefending = false;
-    //public float leftDefenseTime = -10f;
-    //public float rightDefenseTime = -10f;
-
+    private bool upPowerUpActive = false;
+    private bool downPowerUpActive = false;
+    public GameObject winMessage; // drag your UI text/image into this field
 
     void Start()
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
+        attackFeedbackImage.SetActive(false);
     }
 
     void Update()
     {
-        // Trigger defense on key press
+        // Trigger power-ups
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            Debug.Log("Up Power-Up Activated!");
             WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(TemporaryLeftDefense());
+            StartCoroutine(ActivateUpPowerUp());
         }
-
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
+            Debug.Log("Down Power-Up Activated!");
             WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(TemporaryRightDefense());
+            StartCoroutine(ActivateDownPowerUp());
         }
 
-
-        // Punish if both defense keys are pressed in the same frame
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && Input.GetKeyDown(KeyCode.RightArrow) && defenseEnabled)
-        {
-            StartCoroutine(TemporarilyDisableDefense());
-        }
-
-        // Damage by UpArrow unless defended
+        // Attacks
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            if (!isLeftDefending || !defenseEnabled)
-                TakeDamage(10f);
-            
+            Debug.Log("UpArrow Attack!");
+            float damage = upPowerUpActive ? 20f : 10f;
+            TakeDamage(damage);
+            upPowerUpActive = false;
+            StartCoroutine(ShowAttackFeedback());
         }
 
-        // Damage by DownArrow unless defended
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            if (!isRightDefending || !defenseEnabled)
-                TakeDamage(10f);
-            
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            Debug.Log("DownArrow");
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            Debug.Log("UpArrow");
-
-        }
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            Debug.Log("LeftArrow");
-
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            Debug.Log("RightArrow");
-
+            Debug.Log("DownArrow Attack!");
+            float damage = downPowerUpActive ? 20f : 10f;
+            TakeDamage(damage);
+            downPowerUpActive = false;
+            StartCoroutine(ShowAttackFeedback());
         }
     }
 
-    IEnumerator TemporaryLeftDefense()
+    IEnumerator ActivateUpPowerUp()
     {
-        isLeftDefending = true;
+        upPowerUpActive = true;
         yield return new WaitForSeconds(1f);
-        isLeftDefending = false;
+        upPowerUpActive = false;
     }
 
-    IEnumerator TemporaryRightDefense()
+    IEnumerator ActivateDownPowerUp()
     {
-        isRightDefending = true;
+        downPowerUpActive = true;
         yield return new WaitForSeconds(1f);
-        isRightDefending = false;
+        downPowerUpActive = false;
     }
 
-    IEnumerator TemporarilyDisableDefense()
+    IEnumerator ShowAttackFeedback()
     {
-        defenseEnabled = false;
-        Debug.Log("Defense disabled for 4 seconds due to invalid input!");
-        yield return new WaitForSeconds(4f);
-        defenseEnabled = true;
-        Debug.Log("Defense re-enabled.");
+        attackFeedbackImage.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        attackFeedbackImage.SetActive(false);
     }
 
     void TakeDamage(float amount)
@@ -114,6 +89,7 @@ public class HealthBarController : MonoBehaviour
         if (currentHealth <= 0f)
         {
             Debug.Log("B wins!");
+            winMessage.SetActive(true); // Show "B wins"
             enabled = false;
         }
     }

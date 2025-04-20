@@ -5,106 +5,78 @@ using System.Collections;
 public class SecondHealthBarController : MonoBehaviour
 {
     public Image healthBarFill;
+    public GameObject attackFeedbackImage; // assign via Inspector
 
     public float maxHealth = 100f;
     public float currentHealth;
 
-    public bool defenseEnabled = true;
-    public bool isLeftDefending = false;
-    public bool isRightDefending = false;
+    private bool wPowerUpActive = false;
+    private bool sPowerUpActive = false;
+    public GameObject winMessage; // drag your UI text/image into this field
 
     void Start()
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
+        attackFeedbackImage.SetActive(false);
     }
 
     void Update()
     {
-        // Trigger defense on key press
+        // Trigger power-ups
         if (Input.GetKeyDown(KeyCode.A))
         {
+            Debug.Log("W Power-Up Activated!");
             WorldSFXManager.instance.PlayBlockSound();
-
-            StartCoroutine(TemporaryLeftDefense());
+            StartCoroutine(ActivateWPowerUp());
         }
-
 
         if (Input.GetKeyDown(KeyCode.D))
         {
+            Debug.Log("S Power-Up Activated!");
             WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(TemporaryRightDefense());
+            StartCoroutine(ActivateSPowerUp());
         }
 
-
-        // Punish if both defense keys are pressed in the same frame
-        if (Input.GetKeyDown(KeyCode.A) && Input.GetKeyDown(KeyCode.D) && defenseEnabled)
-        {
-            StartCoroutine(TemporarilyDisableDefense());
-        }
-
-        // Damage by W unless defended
+        // Attacks
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Debug.Log("damage hello?");
-            if (!isLeftDefending )//|| !defenseEnabled)
-            {
-                
-                TakeDamage(10f);
-            }
+            Debug.Log("W Attack!");
+            float damage = wPowerUpActive ? 20f : 10f;
+            TakeDamage(damage);
+            wPowerUpActive = false;
+            StartCoroutine(ShowAttackFeedback());
         }
 
-        // Damage by S unless defended
         if (Input.GetKeyDown(KeyCode.S))
         {
-            if (!isRightDefending || !defenseEnabled)
-            {
-                Debug.Log("damage hello?");
-                TakeDamage(10f);
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            Debug.Log("w");
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            Debug.Log("a");
-
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            Debug.Log("s");
-
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            Debug.Log("D");
-
+            Debug.Log("S Attack!");
+            float damage = sPowerUpActive ? 20f : 10f;
+            TakeDamage(damage);
+            sPowerUpActive = false;
+            StartCoroutine(ShowAttackFeedback());
         }
     }
 
-    IEnumerator TemporaryLeftDefense()
+    IEnumerator ActivateWPowerUp()
     {
-        isLeftDefending = true;
+        wPowerUpActive = true;
         yield return new WaitForSeconds(1f);
-        isLeftDefending = false;
+        wPowerUpActive = false;
     }
 
-    IEnumerator TemporaryRightDefense()
+    IEnumerator ActivateSPowerUp()
     {
-        isRightDefending = true;
+        sPowerUpActive = true;
         yield return new WaitForSeconds(1f);
-        isRightDefending = false;
+        sPowerUpActive = false;
     }
 
-    IEnumerator TemporarilyDisableDefense()
+    IEnumerator ShowAttackFeedback()
     {
-        defenseEnabled = false;
-        Debug.Log("Second player's defense disabled for 4 seconds due to invalid input!");
-        yield return new WaitForSeconds(4f);
-        defenseEnabled = true;
-        Debug.Log("Second player's defense re-enabled.");
+        attackFeedbackImage.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        attackFeedbackImage.SetActive(false);
     }
 
     void TakeDamage(float amount)
@@ -117,6 +89,7 @@ public class SecondHealthBarController : MonoBehaviour
         if (currentHealth <= 0f)
         {
             Debug.Log("A wins!");
+            winMessage.SetActive(true); // Show "A wins"
             enabled = false;
         }
     }
