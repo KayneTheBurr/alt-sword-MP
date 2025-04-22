@@ -5,8 +5,10 @@ public class WorldSFXManager : MonoBehaviour
 {
     public static WorldSFXManager instance;
 
+    public AudioSource musicPlayer;
     public AudioSource sfxPlayer;
-    public AudioClip hitSound;
+    public AudioClip smallHitSound;
+    public AudioClip largeHitSound;
     public AudioClip blockSound;
 
     private void Awake()
@@ -14,13 +16,21 @@ public class WorldSFXManager : MonoBehaviour
         if (instance == null) instance = this;
         else Destroy(gameObject);
    }
-    public void PlayHitSound()
+    public void PlaySmallHitSound()
     {
-        sfxPlayer.clip = hitSound;
-        sfxPlayer.PlayOneShot(hitSound);
+        sfxPlayer.pitch = 1;
+        sfxPlayer.clip = smallHitSound;
+        sfxPlayer.PlayOneShot(smallHitSound);
+    }
+    public void PlayLargeHitSound()
+    {
+        sfxPlayer.pitch = 1;
+        sfxPlayer.clip = largeHitSound;
+        sfxPlayer.PlayOneShot(largeHitSound);
     }
     public void PlayBlockSound()
     {
+        sfxPlayer.pitch = 2.75f;
         sfxPlayer.clip = blockSound;
        sfxPlayer.PlayOneShot(blockSound);
     }

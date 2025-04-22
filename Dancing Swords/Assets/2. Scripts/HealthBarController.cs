@@ -26,23 +26,28 @@ public class HealthBarController : MonoBehaviour
         // Trigger power-ups
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Debug.Log("Up Power-Up Activated!");
-            WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(ActivateUpPowerUp());
+            if (!upPowerUpActive)
+            {
+                Debug.Log("Up Power-Up Activated!");
+                WorldSFXManager.instance.PlayBlockSound();
+                StartCoroutine(ActivateUpPowerUp());
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            Debug.Log("Down Power-Up Activated!");
-            WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(ActivateDownPowerUp());
+        { if (!downPowerUpActive)
+            {
+                Debug.Log("Down Power-Up Activated!");
+                WorldSFXManager.instance.PlayBlockSound();
+                StartCoroutine(ActivateDownPowerUp());
+            }
         }
 
         // Attacks
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Debug.Log("UpArrow Attack!");
-            float damage = upPowerUpActive ? 20f : 10f;
+            float damage = upPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             upPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -51,7 +56,7 @@ public class HealthBarController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Debug.Log("DownArrow Attack!");
-            float damage = downPowerUpActive ? 20f : 10f;
+            float damage = downPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             downPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -61,14 +66,14 @@ public class HealthBarController : MonoBehaviour
     IEnumerator ActivateUpPowerUp()
     {
         upPowerUpActive = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         upPowerUpActive = false;
     }
 
     IEnumerator ActivateDownPowerUp()
     {
         downPowerUpActive = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         downPowerUpActive = false;
     }
 
@@ -81,12 +86,20 @@ public class HealthBarController : MonoBehaviour
 
     void TakeDamage(float amount)
     {
-        WorldSFXManager.instance.PlayHitSound();
+        if(amount > 10)
+        {
+            WorldSFXManager.instance.PlayLargeHitSound();
+        }
+        else
+        {
+            WorldSFXManager.instance.PlaySmallHitSound();
+        }
+        
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();
 
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0f && GetComponent<SecondHealthBarController>().currentHealth >= 0)
         {
             Debug.Log("B wins!");
             winMessage.SetActive(true); // Show "B wins"

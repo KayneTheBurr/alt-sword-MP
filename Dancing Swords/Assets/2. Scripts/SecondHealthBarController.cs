@@ -26,23 +26,29 @@ public class SecondHealthBarController : MonoBehaviour
         // Trigger power-ups
         if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("W Power-Up Activated!");
-            WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(ActivateWPowerUp());
+            if (!wPowerUpActive)
+            {
+                Debug.Log("W Power-Up Activated!");
+                WorldSFXManager.instance.PlayBlockSound();
+                StartCoroutine(ActivateWPowerUp());
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-            Debug.Log("S Power-Up Activated!");
-            WorldSFXManager.instance.PlayBlockSound();
-            StartCoroutine(ActivateSPowerUp());
+            if (!sPowerUpActive)
+            {
+                Debug.Log("S Power-Up Activated!");
+                WorldSFXManager.instance.PlayBlockSound();
+                StartCoroutine(ActivateSPowerUp());
+            }
         }
 
         // Attacks
         if (Input.GetKeyDown(KeyCode.W))
         {
             Debug.Log("W Attack!");
-            float damage = wPowerUpActive ? 20f : 10f;
+            float damage = wPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             wPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -51,7 +57,7 @@ public class SecondHealthBarController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.S))
         {
             Debug.Log("S Attack!");
-            float damage = sPowerUpActive ? 20f : 10f;
+            float damage = sPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             sPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -61,14 +67,14 @@ public class SecondHealthBarController : MonoBehaviour
     IEnumerator ActivateWPowerUp()
     {
         wPowerUpActive = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         wPowerUpActive = false;
     }
 
     IEnumerator ActivateSPowerUp()
     {
         sPowerUpActive = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         sPowerUpActive = false;
     }
 
@@ -81,12 +87,19 @@ public class SecondHealthBarController : MonoBehaviour
 
     void TakeDamage(float amount)
     {
-        WorldSFXManager.instance.PlayHitSound();
+        if (amount > 10)
+        {
+            WorldSFXManager.instance.PlayLargeHitSound();
+        }
+        else
+        {
+            WorldSFXManager.instance.PlaySmallHitSound();
+        }
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();
 
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0f && GetComponent<HealthBarController>().currentHealth >= 0)
         {
             Debug.Log("A wins!");
             winMessage.SetActive(true); // Show "A wins"
