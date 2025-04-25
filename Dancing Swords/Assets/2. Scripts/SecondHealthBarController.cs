@@ -14,11 +14,22 @@ public class SecondHealthBarController : MonoBehaviour
     public bool sPowerUpActive = false;
     public GameObject winMessage; // drag your UI text/image into this field
 
+    private Color originalColor;
+
     void Start()
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
-        attackFeedbackImage.SetActive(false);
+
+        // 保存原始颜色
+        if (attackFeedbackImage != null)
+        {
+            Image img = attackFeedbackImage.GetComponent<Image>();
+            if (img != null)
+            {
+                originalColor = img.color;
+            }
+        }
     }
 
     void Update()
@@ -80,9 +91,16 @@ public class SecondHealthBarController : MonoBehaviour
 
     IEnumerator ShowAttackFeedback()
     {
-        attackFeedbackImage.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        attackFeedbackImage.SetActive(false);
+        if (attackFeedbackImage != null)
+        {
+            Image img = attackFeedbackImage.GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = Color.red;
+                yield return new WaitForSeconds(1f);
+                img.color = originalColor;
+            }
+        }
     }
 
     public void TakeDamage(float amount)

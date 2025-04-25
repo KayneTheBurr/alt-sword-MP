@@ -18,7 +18,7 @@ public class HealthBarController : MonoBehaviour
     {
         currentHealth = maxHealth;
         UpdateHealthBar();
-        attackFeedbackImage.SetActive(false);
+        //attackFeedbackImage.SetActive(false);
     }
 
     void Update()
@@ -79,10 +79,19 @@ public class HealthBarController : MonoBehaviour
 
     IEnumerator ShowAttackFeedback()
     {
-        attackFeedbackImage.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        attackFeedbackImage.SetActive(false);
+        if (attackFeedbackImage != null)
+        {
+            Image img = attackFeedbackImage.GetComponent<Image>();
+            if (img != null)
+            {
+                Color originalColor = img.color;
+                img.color = Color.red;
+                yield return new WaitForSeconds(1f);
+                img.color = originalColor;
+            }
+        }
     }
+
 
     public void TakeDamage(float amount)
     {
