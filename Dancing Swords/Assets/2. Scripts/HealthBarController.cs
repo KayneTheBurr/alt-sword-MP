@@ -10,8 +10,8 @@ public class HealthBarController : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
 
-    private bool upPowerUpActive = false;
-    private bool downPowerUpActive = false;
+    public bool upPowerUpActive = false;
+    public bool downPowerUpActive = false;
     public GameObject winMessage; // drag your UI text/image into this field
 
     void Start()
@@ -47,7 +47,7 @@ public class HealthBarController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Debug.Log("UpArrow Attack!");
-            float damage = upPowerUpActive ? 20f : 5f;
+            float damage = GetComponent<SecondHealthBarController>().wPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             upPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -56,7 +56,7 @@ public class HealthBarController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Debug.Log("DownArrow Attack!");
-            float damage = downPowerUpActive ? 20f : 5f;
+            float damage = GetComponent<SecondHealthBarController>().sPowerUpActive ? 20f : 5f;
             TakeDamage(damage);
             downPowerUpActive = false;
             StartCoroutine(ShowAttackFeedback());
@@ -84,7 +84,7 @@ public class HealthBarController : MonoBehaviour
         attackFeedbackImage.SetActive(false);
     }
 
-    void TakeDamage(float amount)
+    public void TakeDamage(float amount)
     {
         if(amount > 10)
         {
